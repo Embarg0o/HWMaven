@@ -1,3 +1,4 @@
+
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
@@ -7,6 +8,8 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
 
 public class Main {
     private final static String WeatherURL =  "http://dataservice.accuweather.com/forecasts/v1/daily/5day/295212";
@@ -22,6 +25,15 @@ public class Main {
             JsonObject weatherResponseJson = jsonReader.readObject();
             WeatherResponse weatherResponse = new WeatherResponse(weatherResponseJson);
             System.out.println(weatherResponse);
+
+            RepositoryService.createTable();
+
+            for (DailyForecast dailyForecast : weatherResponse.getDailyForecasts()) {
+                RepositoryService.putWeatherIntoDb(dailyForecast);
+            }
+
+            List<DailyForecast> dailyForecasts = RepositoryService.loadDailyForecasts();
+            System.out.println(dailyForecasts);
         } else {
             System.out.println("Не удалось прочитать данные с сервера.");
         }
